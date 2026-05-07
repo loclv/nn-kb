@@ -1,16 +1,31 @@
 # AI Neural Network Knowledge Base
 
-Welcome to the AI Neural Network Knowledge Base! This repository is designed to be a comprehensive resource covering the fundamental architectures, concepts, and modern advancements in Artificial Intelligence and Neural Networks.
+A comprehensive, paper-referenced knowledge base covering the fundamental architectures, concepts, and modern advancements in Artificial Intelligence and Neural Networks. All documents are sourced from landmark research papers and authoritative resources.
 
 ## Contents
 
-The knowledge base is structured into the following topics:
+| # | Topic | Description |
+|---|---|---|
+| 1 | [Neural Network Basics](docs/basics.md) | Perceptrons, activation functions, loss functions, backpropagation, optimizers (Adam), Batch Normalization, and Dropout. |
+| 2 | [Convolutional Neural Networks](docs/cnn.md) | Convolution operations, pooling, and landmark architectures: LeNet-5, AlexNet, VGGNet, and ResNet. |
+| 3 | [Recurrent Neural Networks](docs/rnn.md) | Vanilla RNNs, vanishing gradients, LSTM gates, GRU, and the Bahdanau attention mechanism. |
+| 4 | [Transformer Architectures](docs/transformer.md) | Self-attention math, the encoder-decoder architecture, BERT, GPT-3, and modern LLMs. |
+| 5 | [Generative Adversarial Networks](docs/gan.md) | The GAN adversarial framework, training instability, WGAN, StyleGAN, and comparison to diffusion models. |
 
-1. **[Neural Network Basics](docs/basics.md)**: Introduction to the foundational concepts of Neural Networks, including perceptrons, multi-layer architectures, activation functions, loss functions, and the backpropagation algorithm.
-2. **[Convolutional Neural Networks (CNNs)](docs/cnn.md)**: Explore architectures designed primarily for image and video processing. Learn about convolution layers, pooling, and feature extraction.
-3. **[Recurrent Neural Networks (RNNs)](docs/rnn.md)**: Dive into networks built for sequential data such as time series or natural language. Understand the challenges of standard RNNs and the solutions provided by LSTMs and GRUs.
-4. **[Transformer Architectures](docs/transformer.md)**: Learn about the revolutionary architecture powering modern Large Language Models (LLMs). This section covers self-attention mechanisms and encoder-decoder structures.
+## Key Papers Referenced
 
-## Usage
-
-This documentation is written in Markdown format, making it easy to read directly on GitHub or any Markdown viewer. The content is curated from comprehensive sources like Wikipedia to provide a solid theoretical foundation.
+| Paper | Authors | Year | arXiv |
+|---|---|---|---|
+| Backpropagation | Rumelhart, Hinton & Williams | 1986 | — |
+| Long Short-Term Memory | Hochreiter & Schmidhuber | 1997 | — |
+| Improving Neural Networks by Preventing Co-Adaptation (Dropout) | Hinton et al. | 2012 | [1207.0580](https://arxiv.org/abs/1207.0580) |
+| Neural Machine Translation by Jointly Learning to Align and Translate | Bahdanau, Cho & Bengio | 2014 | [1409.0473](https://arxiv.org/abs/1409.0473) |
+| Very Deep Convolutional Networks (VGGNet) | Simonyan & Zisserman | 2014 | [1409.1556](https://arxiv.org/abs/1409.1556) |
+| Generative Adversarial Networks | Goodfellow et al. | 2014 | [1406.2661](https://arxiv.org/abs/1406.2661) |
+| Adam Optimizer | Kingma & Ba | 2014 | [1412.6980](https://arxiv.org/abs/1412.6980) |
+| Empirical Evaluation of Gated Recurrent Neural Networks (GRU) | Cho et al. | 2014 | [1412.3555](https://arxiv.org/abs/1412.3555) |
+| Batch Normalization | Ioffe & Szegedy | 2015 | [1502.03167](https://arxiv.org/abs/1502.03167) |
+| Deep Residual Learning (ResNet) | He, Zhang, Ren & Sun | 2015 | [1512.03385](https://arxiv.org/abs/1512.03385) |
+| Attention Is All You Need (Transformer) | Vaswani et al. | 2017 | [1706.03762](https://arxiv.org/abs/1706.03762) |
+| BERT | Devlin, Chang, Lee & Toutanova | 2018 | [1810.04805](https://arxiv.org/abs/1810.04805) |
+| Language Models are Few-Shot Learners (GPT-3) | Brown et al. | 2020 | [2005.14165](https://arxiv.org/abs/2005.14165) |

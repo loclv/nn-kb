@@ -9,7 +9,8 @@ A comprehensive, paper-referenced knowledge base covering the fundamental archit
 | 1 | [Neural Network Basics](docs/basics.md) | Perceptrons, activation functions, loss functions, backpropagation, optimizers (Adam), Batch Normalization, and Dropout. |
 | 2 | [Convolutional Neural Networks](docs/cnn.md) | Convolution operations, pooling, and landmark architectures: LeNet-5, AlexNet, VGGNet, and ResNet. |
 | 3 | [Recurrent Neural Networks](docs/rnn.md) | Vanilla RNNs, vanishing gradients, LSTM gates, GRU, and the Bahdanau attention mechanism. |
-| 4 | [Transformer Architectures](docs/transformer.md) | Self-attention math, the encoder-decoder architecture, BERT, GPT-3, and modern LLMs. |
+| 4 | [Transformer Architectures](docs/transformer.md) | Encoder-decoder structure, positional encoding, BERT, GPT-3, and model variants. |
+| 4a | [Self-Attention Mechanism](docs/self-attention.md) | Deep-dive: Q/K/V projections, step-by-step math, worked example, multi-head attention, RoPE, ALiBi, FlashAttention, and Sparse Transformer. |
 | 5 | [Generative Adversarial Networks](docs/gan.md) | The GAN adversarial framework, training instability, WGAN, StyleGAN, and comparison to diffusion models. |
 
 ## Key Papers Referenced

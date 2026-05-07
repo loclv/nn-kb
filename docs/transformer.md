@@ -1,10 +1,10 @@
-# Transformer Architectures
+﻿# Transformer Architectures
 
 The Transformer is a deep learning architecture introduced by Vaswani et al. (2017) that relies **entirely on attention mechanisms**, discarding recurrence and convolution. It is the backbone of modern Large Language Models (LLMs) including BERT, GPT-3, and beyond.
 
 ## 1. Motivation & Origin
 
-**Authors:** Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, Polosukhin (2017) — [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)
+**Authors:** Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, Polosukhin (2017) â€” [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)
 
 > *"We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely."*
 
@@ -18,44 +18,44 @@ The Transformer is a deep learning architecture introduced by Vaswani et al. (20
 | **Interpretability** | Opaque hidden state | Attention weights are visualizable |
 
 **Results on WMT 2014:**
-- English-to-German: **28.4 BLEU** — over 2 BLEU improvement over the best prior result.
-- English-to-French: **41.8 BLEU** — new single-model state-of-the-art after only 3.5 days on 8 GPUs.
+- English-to-German: **28.4 BLEU** â€” over 2 BLEU improvement over the best prior result.
+- English-to-French: **41.8 BLEU** â€” new single-model state-of-the-art after only 3.5 days on 8 GPUs.
 
-## 2. Attention Mechanisms
+## 2. Self-Attention
 
-### 2.1 Scaled Dot-Product Attention
+Self-attention is the core mechanism that allows each token to directly attend to every other token in the sequence. This enables the Transformer to capture long-range dependencies in a single layer, unlike RNNs which require many recurrent steps.
 
-The fundamental operation takes three matrices as input — **Queries (Q)**, **Keys (K)**, and **Values (V)**:
+The full deep-dive â€” including step-by-step computation, a numerical worked example, multi-head attention, positional encodings (sinusoidal, RoPE, ALiBi), and efficient variants (FlashAttention, Sparse Transformer) â€” is documented in **[Self-Attention Mechanism](self-attention.md)**.
+
+### 2.1 The Core Formula
+
+Given query ($Q$), key ($K$), and value ($V$) matrices projected from the input:
 
 $$
 \text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^T}{\sqrt{d_k}}\right) V
 $$
 
-- $Q$, $K$, $V$ are linear projections of the input.
-- The dot product $QK^T$ gives a score for every (query, key) pair.
-- Dividing by $\sqrt{d_k}$ (dimension of keys) prevents vanishing gradients in softmax.
-- Softmax converts scores to a probability distribution (attention weights).
-- The output is the weighted sum of values.
+- The dot product $QK^T$ scores how much each token should attend to every other.
+- Scaling by $\sqrt{d_k}$ prevents softmax saturation.
+- The output is a context-sensitive weighted sum of the value vectors.
 
 ### 2.2 Multi-Head Attention
 
-Instead of performing a single attention function, the Transformer computes $h$ parallel attention operations ("heads"), each with its own learned projection matrices:
+The Transformer runs $h$ parallel attention heads, each projecting with its own learned weights:
 
 $$
-\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h) W^O
-$$
-$$
-\text{head}_i = \text{Attention}(Q W_i^Q, K W_i^K, V W_i^V)
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)\, W^O
 $$
 
-This allows the model to **jointly attend to information from different representation subspaces** at different positions simultaneously.
+The original paper uses $h = 8$ heads with $d_k = d_v = 64$ ($d_{model} = 512$). Each head can specialize in different types of relationships (syntax, coreference, position, semantics).
 
-### 2.3 Self-Attention vs Cross-Attention
+### 2.3 Attention Types
 
 | Type | Q/K/V Source | Use |
 |---|---|---|
-| **Self-Attention** | All from the same sequence | Each token attends to all other tokens in the same sequence |
-| **Cross-Attention** | Q from decoder, K/V from encoder | Decoder attends to the encoder's output |
+| **Encoder Self-Attention** | Encoder input | Bidirectional; every token attends to all others. |
+| **Decoder Masked Self-Attention** | Decoder input (past only) | Causal; tokens cannot attend to future positions. |
+| **Decoder Cross-Attention** | Q from decoder, K/V from encoder | Decoder "reads" the full encoded source. |
 
 ## 3. Architecture
 
@@ -63,25 +63,25 @@ The standard Transformer follows an **Encoder-Decoder** structure:
 
 ```
 Input Tokens
-     │
+     â”‚
 [Embedding + Positional Encoding]
-     │
-  Encoder Stack (N× layers)
-  ├── Multi-Head Self-Attention
-  ├── Add & Norm (Residual)
-  ├── Feed-Forward Network
-  └── Add & Norm (Residual)
-     │
-  Decoder Stack (N× layers)
-  ├── Masked Multi-Head Self-Attention
-  ├── Add & Norm
-  ├── Cross-Attention (Q←decoder, KV←encoder)
-  ├── Add & Norm
-  ├── Feed-Forward Network
-  └── Add & Norm
-     │
+     â”‚
+  Encoder Stack (NÃ— layers)
+  â”œâ”€â”€ Multi-Head Self-Attention
+  â”œâ”€â”€ Add & Norm (Residual)
+  â”œâ”€â”€ Feed-Forward Network
+  â””â”€â”€ Add & Norm (Residual)
+     â”‚
+  Decoder Stack (NÃ— layers)
+  â”œâ”€â”€ Masked Multi-Head Self-Attention
+  â”œâ”€â”€ Add & Norm
+  â”œâ”€â”€ Cross-Attention (Qâ†decoder, KVâ†encoder)
+  â”œâ”€â”€ Add & Norm
+  â”œâ”€â”€ Feed-Forward Network
+  â””â”€â”€ Add & Norm
+     â”‚
 [Linear + Softmax]
-     │
+     â”‚
 Output Probabilities
 ```
 
@@ -106,11 +106,11 @@ $$
 \text{FFN}(x) = \max(0, x W_1 + b_1) W_2 + b_2
 $$
 
-The inner dimension $d_{ff}$ is typically 4× the model dimension $d_{model}$.
+The inner dimension $d_{ff}$ is typically 4Ã— the model dimension $d_{model}$.
 
 ### 3.3 Residual Connections & Layer Normalization
 
-Each sub-layer uses a **residual connection** (He et al., 2015 — [arXiv:1512.03385](https://arxiv.org/abs/1512.03385)) followed by **Layer Normalization**:
+Each sub-layer uses a **residual connection** (He et al., 2015 â€” [arXiv:1512.03385](https://arxiv.org/abs/1512.03385)) followed by **Layer Normalization**:
 
 $$
 \text{output} = \text{LayerNorm}(x + \text{Sublayer}(x))
@@ -120,7 +120,7 @@ $$
 
 ### 4.1 BERT
 
-**Authors:** Devlin, Chang, Lee, Toutanova (2018) — [arXiv:1810.04805](https://arxiv.org/abs/1810.04805)
+**Authors:** Devlin, Chang, Lee, Toutanova (2018) â€” [arXiv:1810.04805](https://arxiv.org/abs/1810.04805)
 
 > *"BERT is designed to pre-train deep bidirectional representations from unlabeled text by jointly conditioning on both left and right context in all layers."*
 
@@ -130,16 +130,16 @@ BERT is an **encoder-only** Transformer pre-trained on two tasks:
 
 **Results:** Set new state-of-the-art on 11 NLP benchmarks including GLUE (80.5%), SQuAD v1.1 F1 (93.2%), and SQuAD v2.0 F1 (83.1%).
 
-**Key variant — BERT-Large:** 24 layers, 1024 hidden units, 16 attention heads, 340M parameters.
+**Key variant â€” BERT-Large:** 24 layers, 1024 hidden units, 16 attention heads, 340M parameters.
 
 ### 4.2 GPT-3
 
-**Authors:** Brown et al. (2020) — [arXiv:2005.14165](https://arxiv.org/abs/2005.14165)
+**Authors:** Brown et al. (2020) â€” [arXiv:2005.14165](https://arxiv.org/abs/2005.14165)
 
 > *"Scaling up language models greatly improves task-agnostic, few-shot performance, sometimes even reaching competitiveness with prior state-of-the-art fine-tuning approaches."*
 
 GPT-3 is a **decoder-only** autoregressive Transformer trained on next-token prediction. Key facts:
-- **175 billion parameters** — 10× larger than any previous non-sparse model.
+- **175 billion parameters** â€” 10Ã— larger than any previous non-sparse model.
 - Demonstrates remarkable **few-shot learning**: given a few examples in the prompt (without gradient updates), it achieves competitive performance on many NLP tasks.
 - Architecture: 96 layers, $d_{model} = 12288$, 96 attention heads.
 
@@ -173,3 +173,7 @@ GPT-3 led directly to ChatGPT and modern instruction-following LLMs.
 - Brown, T., et al. (2020). Language Models are Few-Shot Learners (GPT-3). [arXiv:2005.14165](https://arxiv.org/abs/2005.14165)
 - He, K., et al. (2015). Deep Residual Learning for Image Recognition. [arXiv:1512.03385](https://arxiv.org/abs/1512.03385)
 - Bahdanau, D., Cho, K., & Bengio, Y. (2014). Neural Machine Translation by Jointly Learning to Align and Translate. [arXiv:1409.0473](https://arxiv.org/abs/1409.0473)
+- Child, R., et al. (2019). Generating Long Sequences with Sparse Transformers. [arXiv:1904.10509](https://arxiv.org/abs/1904.10509)
+- Su, J., et al. (2021). RoFormer: Enhanced Transformer with Rotary Position Embedding (RoPE). [arXiv:2104.09864](https://arxiv.org/abs/2104.09864)
+- Press, O., Smith, N. A., & Lewis, M. (2021). Train Short, Test Long: Attention with Linear Biases (ALiBi). [arXiv:2108.12409](https://arxiv.org/abs/2108.12409)
+- Dao, T., et al. (2022). FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness. [arXiv:2205.14135](https://arxiv.org/abs/2205.14135)

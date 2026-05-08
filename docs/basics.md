@@ -38,6 +38,7 @@ Activation functions introduce **non-linearity**, enabling networks to learn com
 | **ReLU** | $\max(0, x)$ | Fast, sparse activations; "dying ReLU" problem. Introduced broadly by Glorot et al. (2011). |
 | **Leaky ReLU** | $\max(\alpha x, x)$ | Fixes dying ReLU by allowing small negative slope $\alpha$. |
 | **GELU** | $x \cdot \Phi(x)$ | Gaussian Error Linear Unit; used in BERT and GPT. Smoother than ReLU. |
+| **SwiGLU** | $\text{Swish}_1(xW + b) \otimes (xV + c)$ | Used in Llama and PaLM; combines Gated Linear Unit with Swish. (Shazeer, 2020). |
 | **Softmax** | $e^{x_i}/\sum e^{x_j}$ | Normalizes outputs to a probability distribution; used in the output layer for classification. |
 
 ## 4. Loss Functions
@@ -87,6 +88,14 @@ $$
 
 Default hyperparameters: $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$.
 
+### 5.3 Learning Rate Schedulers
+
+| Scheduler | Key Idea |
+|---|---|
+| **Step Decay** | Drops learning rate by a factor every $N$ epochs. |
+| **Cosine Annealing** | Decays $\eta$ following a cosine curve; often used with **warmup** (starting small and increasing). |
+| **Cyclic LR** | Oscillates $\eta$ between boundaries; helps escape saddle points. |
+
 ## 6. Regularization
 
 Regularization techniques prevent **overfitting** — memorizing training data rather than generalizing.
@@ -103,7 +112,17 @@ Introduced by Ioffe & Szegedy (2015) ([arXiv:1502.03167](https://arxiv.org/abs/1
 - Acts as a **regularizer**, often reducing the need for Dropout.
 - Dramatically accelerates training (same accuracy in 14× fewer steps on ImageNet).
 
-### 6.3 L1 / L2 Weight Regularization
+### 6.3 RMSNorm
+
+Introduced by Zhang & Sennrich (2019) ([arXiv:1910.07467](https://arxiv.org/abs/1910.07467)), **Root Mean Square Layer Normalization** is a computationally efficient variant of LayerNorm that only rescales inputs without re-centering them (removing the mean-subtraction step):
+
+$$
+\bar{a}_i = \frac{a_i}{\sqrt{\frac{1}{n}\sum a_j^2 + \epsilon}} \cdot \gamma_i
+$$
+
+RMSNorm is the standard normalization for modern LLMs like **Llama 3**, Gopher, and Chinchilla, offering similar performance to LayerNorm with 10–40% faster computation.
+
+### 6.4 L1 / L2 Weight Regularization
 
 - **L2 (Weight Decay):** Penalizes large weights by adding $\lambda \|w\|^2$ to the loss. Encourages small, diffuse weights.
 - **L1 (Lasso):** Adds $\lambda \|w\|_1$. Encourages **sparsity** — drives many weights to exactly zero.
@@ -130,6 +149,9 @@ Introduced by Ioffe & Szegedy (2015) ([arXiv:1502.03167](https://arxiv.org/abs/1
 | 2015 | Ioffe & Szegedy | Batch Normalization ([arXiv:1502.03167](https://arxiv.org/abs/1502.03167)) |
 | 2017 | Vaswani et al. | Transformer / Attention Is All You Need ([arXiv:1706.03762](https://arxiv.org/abs/1706.03762)) |
 | 2018 | Devlin et al. | BERT ([arXiv:1810.04805](https://arxiv.org/abs/1810.04805)) |
+| 2020 | Brown et al. | GPT-3 (175B parameters) |
+| 2022 | Hoffmann et al. | Chinchilla / Scaling Laws ([arXiv:2203.15556](https://arxiv.org/abs/2203.15556)) |
+| 2024 | Meta AI | Llama 3 (Open weights state-of-the-art) |
 
 ---
 
@@ -141,3 +163,7 @@ Introduced by Ioffe & Szegedy (2015) ([arXiv:1502.03167](https://arxiv.org/abs/1
 - Kingma, D. P., & Ba, J. (2014). Adam: A Method for Stochastic Optimization. [arXiv:1412.6980](https://arxiv.org/abs/1412.6980)
 - Ioffe, S., & Szegedy, C. (2015). Batch Normalization. [arXiv:1502.03167](https://arxiv.org/abs/1502.03167)
 - Bengio, Y., et al. (2009). Learning deep architectures for AI. *Foundations and Trends in Machine Learning*.
+- Zhang, B., & Sennrich, R. (2019). Root Mean Square Layer Normalization. [arXiv:1910.07467](https://arxiv.org/abs/1910.07467)
+- Shazeer, N. (2020). GLU Variants Improve Transformer. [arXiv:2002.05202](https://arxiv.org/abs/2002.05202)
+- Hoffmann, J., et al. (2022). Training Compute-Optimal Large Language Models (Chinchilla). [arXiv:2203.15556](https://arxiv.org/abs/2203.15556)
+- Loshchilov, I., & Hutter, F. (2017). SGDR: Stochastic Gradient Descent with Warm Restarts (Cosine Annealing). [arXiv:1608.03983](https://arxiv.org/abs/1608.03983)

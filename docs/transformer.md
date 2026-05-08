@@ -1,4 +1,4 @@
-﻿# Transformer Architectures
+# Transformer Architectures
 
 The Transformer is a deep learning architecture introduced by Vaswani et al. (2017) that relies **entirely on attention mechanisms**, discarding recurrence and convolution. It is the backbone of modern Large Language Models (LLMs) including BERT, GPT-3, and beyond.
 
@@ -145,7 +145,53 @@ GPT-3 is a **decoder-only** autoregressive Transformer trained on next-token pre
 
 GPT-3 led directly to ChatGPT and modern instruction-following LLMs.
 
-### 4.3 Other Important Variants
+### 4.3 Llama 3 & 3.1
+
+**Authors:** Meta AI (2024) — [The Llama 3 Herd of Models](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
+
+Llama 3 is a family of highly capable, open-weights dense Transformers. The **405B** version is the first open-weights model to rival frontier closed models.
+
+- **Architecture:** Standard decoder-only Transformer with several modern improvements:
+    - **Grouped-Query Attention (GQA)** for efficient inference.
+    - **RoPE** positional embeddings.
+    - **RMSNorm** and **SwiGLU** activation.
+- **Scaling:** Trained on **15 trillion tokens** (7.5× more than Llama 2).
+- **Llama 3.1:** Extended context to **128K tokens** using specialized RoPE scaling and fine-tuning.
+
+### 4.4 Gemini 1.5 / 2.5
+
+**Authors:** Google DeepMind (2023–2025) — [Gemini Technical Reports](https://arxiv.org/abs/2312.11805)
+
+Gemini is a family of natively **multimodal** models (Ultra, Pro, Nano).
+
+- **Natively Multimodal:** Unlike models that use "adapters" to connect vision encoders to LLMs, Gemini was trained from the start across text, image, audio, and video.
+- **Extreme Context:** Gemini 1.5 Pro introduced a **1M to 2M token context window**, using Ring Attention and efficient KV cache management.
+- **Reasoning:** Gemini 2.5 ("Thinking" models) incorporates reinforcement learning and inference-time search to solve complex math and coding problems.
+
+### 4.5 Mistral & Mixtral (SMoE)
+
+**Authors:** Jiang et al. (2023–2024) — [Mistral 7B](https://arxiv.org/abs/2310.06825), [Mixtral 8x7B](https://arxiv.org/abs/2401.04088)
+
+Mistral introduced high-performance efficiency to the 7B class, while Mixtral popularized **Sparse Mixture-of-Experts (SMoE)** for LLMs.
+
+- **Sliding Window Attention (SWA):** Mistral 7B uses a windowed attention mechanism to handle long sequences with $O(n \cdot \text{window})$ complexity.
+- **SMoE:** Mixtral 8x7B has 47B total parameters but only uses **13B active parameters** per token, providing GPT-3.5 level performance with much faster inference.
+
+## 5. Mixture-of-Experts (MoE)
+
+Sparse MoE (Shazeer et al., 2017; Fedus et al., 2021) replaces the dense FFN layer with multiple "expert" networks. A **router** network learns to send each token to the most relevant 1 or 2 experts.
+
+$$
+\text{MoE}(x) = \sum_{i=1}^k G(x)_i E_i(x)
+$$
+
+- $G(x)$: The gating (router) network.
+- $E_i(x)$: The $i$-th expert.
+- $k$: Number of active experts (typically 1 or 2).
+
+**Key Advantage:** Allows scaling model capacity (total parameters) without a proportional increase in training or inference compute.
+
+## 6. Decoder-Only vs Encoder-Only vs Encoder-Decoder
 
 | Model | Type | Key Feature |
 |---|---|---|
@@ -154,7 +200,9 @@ GPT-3 led directly to ChatGPT and modern instruction-following LLMs.
 | **RoBERTa** | Encoder-only | Optimized BERT training (longer, larger batches, no NSP) |
 | **Vision Transformer (ViT)** | Encoder-only | Applies Transformer to image patches for CV |
 | **GPT-4** | Decoder-only | Multimodal; frontier model |
-| **LLaMA** | Decoder-only | Open-weights efficient Transformer family |
+| **LLaMA 3** | Decoder-only | Open-weights frontier model; 405B parameters |
+| **Mixtral 8x7B** | SMoE | Efficient sparse architecture; 8 experts |
+| **DeepSeek-V3** | SMoE | Frontier efficiency; Multi-head Latent Attention (MLA) |
 
 ## 5. Decoder-Only vs Encoder-Only vs Encoder-Decoder
 
@@ -175,5 +223,11 @@ GPT-3 led directly to ChatGPT and modern instruction-following LLMs.
 - Bahdanau, D., Cho, K., & Bengio, Y. (2014). Neural Machine Translation by Jointly Learning to Align and Translate. [arXiv:1409.0473](https://arxiv.org/abs/1409.0473)
 - Child, R., et al. (2019). Generating Long Sequences with Sparse Transformers. [arXiv:1904.10509](https://arxiv.org/abs/1904.10509)
 - Su, J., et al. (2021). RoFormer: Enhanced Transformer with Rotary Position Embedding (RoPE). [arXiv:2104.09864](https://arxiv.org/abs/2104.09864)
+- Jiang, A. Q., et al. (2023). Mistral 7B. [arXiv:2310.06825](https://arxiv.org/abs/2310.06825)
+- Jiang, A. Q., et al. (2024). Mixtral of Experts. [arXiv:2401.04088](https://arxiv.org/abs/2401.04088)
+- Meta AI (2024). The Llama 3 Herd of Models. [Technical Report](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
+- Google DeepMind (2023). Gemini: A Family of Highly Capable Multimodal Models. [arXiv:2312.11805](https://arxiv.org/abs/2312.11805)
+- Shazeer, N., et al. (2017). Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer. [arXiv:1701.06538](https://arxiv.org/abs/1701.06538)
+- Fedus, W., et al. (2021). Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity. [arXiv:2101.03961](https://arxiv.org/abs/2101.03961)
 - Press, O., Smith, N. A., & Lewis, M. (2021). Train Short, Test Long: Attention with Linear Biases (ALiBi). [arXiv:2108.12409](https://arxiv.org/abs/2108.12409)
 - Dao, T., et al. (2022). FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness. [arXiv:2205.14135](https://arxiv.org/abs/2205.14135)

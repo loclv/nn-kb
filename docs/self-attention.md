@@ -142,6 +142,18 @@ The original paper uses $h = 8$ heads with $d_k = d_v = d_{model}/h = 64$. Each 
 
 The outputs are concatenated ($\mathbb{R}^{n \times (h \cdot d_v)}$) and projected back to $d_{model}$ via $W^O$.
 
+### 5.1 GQA & MQA (Efficient Variants)
+
+As model context lengths grow, the **KV Cache** becomes a memory bottleneck. Modern models use variants of multi-head attention to reduce this:
+
+| Variant | Queries | Keys/Values | Benefit |
+|---|---|---|---|
+| **MHA** (Multi-Head) | $h$ heads | $h$ heads | Standard; highest expressiveness. |
+| **MQA** (Multi-Query) | $h$ heads | **1 head** | Minimal KV cache; may lose some accuracy. (Shazeer, 2019). |
+| **GQA** (Grouped-Query) | $h$ heads | **$g$ groups** | **Standard for Llama 3**. High performance with low memory overhead. (Ainslie et al., 2023). |
+
+In **Grouped-Query Attention (GQA)**, query heads are divided into $g$ groups, and each group shares a single Key/Value head. This provides a "sweet spot" between the speed of MQA and the quality of MHA.
+
 ---
 
 ## 6. Self-Attention vs Cross-Attention
@@ -232,7 +244,25 @@ FlashAttention computes **exact** attention (no approximation) with $O(n)$ memor
 
 FlashAttention v2 and v3 are the de-facto attention implementation in PyTorch, HuggingFace Transformers, and most LLM inference engines.
 
-### 9.2 Sparse Transformer
+### 9.2 FlashAttention-3
+
+**Authors:** Shah, Dao, et al. (2024) — [arXiv:2407.08608](https://arxiv.org/abs/2407.08608)
+
+FlashAttention-3 optimizes attention for **NVIDIA Hopper (H100)** architecture. Key innovations:
+- **Asynchrony:** Exploits GPU's Tensor Memory Accelerator (TMA) and Warp Group Matrix Multiply Accumulate (WGMMA) to overlap data movement with computation.
+- **FP8 Precision:** Leverages low-precision hardware to double the throughput while maintaining accuracy via hardware-accelerated quantization.
+- **Result:** Up to **2×** speedup over FlashAttention-2, achieving 75% of H100 peak FLOPs.
+
+### 9.3 Sliding Window Attention (SWA)
+
+**Authors:** Jiang et al. (2023) — [Mistral 7B](https://arxiv.org/abs/2310.06825)
+
+Instead of attending to the full sequence, each token only attends to a fixed-size window of previous tokens ($W$). However, because layers are stacked, information propagates further than the window size: a token in layer 2 can "see" $2W$ tokens back via the intermediate tokens.
+
+- **Complexity:** $O(n \cdot W)$ instead of $O(n^2)$.
+- **Benefit:** Dramatically reduces the KV cache size for very long sequences without losing long-range context.
+
+### 9.4 Sparse Transformer
 
 **Authors:** Child et al. (2019) — [arXiv:1904.10509](https://arxiv.org/abs/1904.10509)
 
@@ -262,4 +292,7 @@ Instead of every token attending to every other token, the Sparse Transformer fa
 - Su, J., et al. (2021). RoFormer: Enhanced Transformer with Rotary Position Embedding (RoPE). [arXiv:2104.09864](https://arxiv.org/abs/2104.09864)
 - Press, O., Smith, N. A., & Lewis, M. (2021). Train Short, Test Long: Attention with Linear Biases (ALiBi). [arXiv:2108.12409](https://arxiv.org/abs/2108.12409)
 - Dao, T., et al. (2022). FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness. [arXiv:2205.14135](https://arxiv.org/abs/2205.14135)
+- Shah, J., Dao, T., et al. (2024). FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision. [arXiv:2407.08608](https://arxiv.org/abs/2407.08608)
+- Ainslie, J., et al. (2023). GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints. [arXiv:2305.13245](https://arxiv.org/abs/2305.13245)
+- Shazeer, N. (2019). Fast Transformer Decoding: One Write-Head is All You Need (MQA). [arXiv:1911.02150](https://arxiv.org/abs/1911.02150)
 - Bahdanau, D., Cho, K., & Bengio, Y. (2014). Neural Machine Translation by Jointly Learning to Align and Translate. [arXiv:1409.0473](https://arxiv.org/abs/1409.0473)
